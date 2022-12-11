@@ -14,13 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('activities', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string("name");
+            $table->id();
+            $table->string('name');
             $table->string('description');
-            $table->enum('state', ['waiting', ' finished,', ' postponed', 'cancelled', 'removed']);
-            $table->date('register_date');
-            $table->date('finished_date');
-            $table->date('change_date');
+            $table->enum('state', ['waiting', ' finished,', 'postponed', 'cancelled', 'removed']);
+            $table->timestamp('register_date'); 
+            $table->timestamp('finished_date');
+            $table->timestamp('change_date');
+            $table->timestamps();
         });
     }
 

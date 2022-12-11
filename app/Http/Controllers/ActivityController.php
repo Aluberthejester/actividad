@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Activity;
+use Carbon\Carbon;
 
 class ActivityController extends Controller
 {
@@ -13,7 +15,8 @@ class ActivityController extends Controller
      */
     public function index()
     {
-        //
+        $activities = Activity::paginate(5);
+        return view('activities.index', compact('activities'));
     }
 
     /**
@@ -23,7 +26,7 @@ class ActivityController extends Controller
      */
     public function create()
     {
-        //
+        return view('activities.create');
     }
 
     /**
@@ -34,7 +37,21 @@ class ActivityController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|max:100',
+            'description' => 'required|max:100',
+            'state' => 'required',
+            ]);
+            $activity = Activity::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'state' => $request->state,
+            'register_date' => now(),
+            'finished_date' => now(),
+            'change_date' => now(),
+            ]);
+            $activity->save();
+            return redirect()->route('activities.index');
     }
 
     /**
@@ -54,9 +71,9 @@ class ActivityController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Activity $activity)
     {
-        //
+        return view('activities.edit', compact('activity'));
     }
 
     /**
@@ -66,9 +83,25 @@ class ActivityController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,Activity $activity)
     {
-        //
+        $request->validate([
+            'name' => 'required|max:100',
+            'description' => 'required|max:100',
+            'state' => 'required',
+            'register_date' => 'required',
+            'finished_date' => 'required',
+            ]);
+            $activity->fill([
+            'name' => $request->name,
+            'description' => $request->description,
+            'state' => $request->state,
+            'register_date' => $request->register_date,
+            'finished_date' => $request->finished_date,
+            'change_date' => now(),
+            ]);
+            $activity->save();
+            return redirect()->route('activities.index');
     }
 
     /**
@@ -77,8 +110,18 @@ class ActivityController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Activity $activity)
     {
-        //
+        $arrayValues = ['waiting', ' finished,', 'postponed', 'cancelled', 'removed'];
+        $activity->fill([
+            //'name' => $this->name,
+            //'description' => $this->description,
+            'state' => $arrayValues[4],
+            //'register_date' => $this->register_date,
+            //'finished_date' => $this->finished_date,
+            'change_date' => now(),
+            ]);
+            $activity->save();
+            return redirect()->route('activities.index');
     }
 }
